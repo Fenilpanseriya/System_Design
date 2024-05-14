@@ -21,6 +21,10 @@ public class Game {
     private int maxButtonPerPlayer;
     private int lastPlayerIndex=-1;
 
+    public GameStatus getGameStatus() {
+        return gameStatus;
+    }
+
     public void makeMove(){
         int diceNumber=dice.roll();
         System.out.println("dice number is "+diceNumber);
@@ -29,36 +33,44 @@ public class Game {
         Scanner sc=new Scanner(System.in);
         System.out.println("Enter which button you want to move ahead ");
         int buttonNumber=sc.nextInt();
-        sc.close();
-        if(buttonNumber != dice.getMaxNumber() &&  players.get(lastPlayerIndex).getButtons(buttonNumber).getStatus()==ButtonStatus.LOCKED){
+
+        Button button=players.get(lastPlayerIndex).getButtons(buttonNumber);
+        System.out.println("button is "+players.get(lastPlayerIndex).getButtons(buttonNumber));
+        System.out.println(players.get(lastPlayerIndex).getAllButtons());
+        if(diceNumber != dice.getMaxNumber() &&  players.get(lastPlayerIndex).getButtons(buttonNumber).getStatus()==ButtonStatus.LOCKED){
             System.out.println("you can not move. to move buutton "+buttonNumber+" you need dice number "+dice.getMaxNumber());
         }
-        if(buttonNumber == dice.getMaxNumber() ){
-            Button button=players.get(lastPlayerIndex).getButtons(buttonNumber);
+        if(diceNumber == dice.getMaxNumber() ){
+
             if(button.getStatus()==ButtonStatus.LOCKED){
                 button.setStatus(ButtonStatus.UNLOCKED);
                 button.setPosition(1);
             }
-            int cnt=1;
-            while(cnt>0){
-                int newDiceNumber=dice.roll();
-                System.out.println("dice number is "+diceNumber);
-                Scanner sca=new Scanner(System.in);
-                System.out.println("Enter which button you want to move ahead ");
-                int newButton=sca.nextInt();
-                sc.close();
-
-                int currentPos=players.get(lastPlayerIndex).getButtons(buttonNumber).getPosition();
-                if(board.getMap().containsKey(currentPos+newDiceNumber))
-
-                cnt--;
-
-
+            else{
+                int nextPos=players.get(lastPlayerIndex).getButtons(buttonNumber).getPosition() + diceNumber;
+                if(nextPos== board.getDimension()){
+                  gameStatus=GameStatus.FINISH;
+                }
+                if(board.getMap().containsKey(nextPos)){
+                    int newPos=board.getMap().get(nextPos).getEndPos();
+                    button.setPosition(newPos);
+                }
+                button.setPosition(nextPos);
             }
-            players.get(lastPlayerIndex).getButtons(buttonNumber).setStatus(ButtonStatus.UNLOCKED);
+
+            makeMove();
         }
         else{
-
+            int nextPos=players.get(lastPlayerIndex).getButtons(buttonNumber).getPosition() + diceNumber;
+            if(board.getMap().containsKey(nextPos)){
+                int newPos=board.getMap().get(nextPos).endPos;
+                button.setPosition(newPos);
+            }
+            
+            button.setPosition(nextPos);
+            if(nextPos== board.getDimension()){
+                gameStatus=GameStatus.FINISH;
+              }
         }
         
     }
@@ -75,10 +87,13 @@ public class Game {
             players.addAll(p);
             for(int i=0;i<this.players.size();i++){
                 int count=this.maxButtonPerPlayer;
+                int initialButtonNumber=1;
                 Player player=players.get(i);
                 while(count>0){
                     System.out.println("in loop");
-                    player.setButtons(i+1, new Button());
+                    Button b=new Button();
+                    player.setButtons(initialButtonNumber, b);
+                    initialButtonNumber++;
                     count--;
                 }
                 System.out.print("\n");
@@ -107,6 +122,10 @@ public class Game {
         public Game build(){
             Game game=new Game();
             game.board=new Board(dimension);
+            Snack s=new Snack();
+            Ladders l=new Ladders();
+            game.board.setEntityMap(1,l);
+            game.board.setEntityMap(2,s);
             game.dice=new Dice(maxDiceNumber);
             game.players=this.players;
             game.moveStrategy=this.moveStrategy;

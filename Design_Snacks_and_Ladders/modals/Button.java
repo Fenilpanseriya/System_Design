@@ -4,6 +4,11 @@ public class Button {
     ButtonStatus status=ButtonStatus.LOCKED;
     int position=0;
 
+    public Button(){
+        this.position=-1;
+
+    }
+
     public int getPosition() {
         return position;
     }

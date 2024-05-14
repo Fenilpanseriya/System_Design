@@ -1,9 +1,15 @@
 package modals;
 
 public  abstract class  BoardEntity {
-    private BoardEntityTypes entityTypes;
+    BoardEntityTypes entityTypes;
     int startPos;
     int endPos;
+
+    public BoardEntity(int start,int end,BoardEntityTypes type){
+        this.endPos=end;
+        this.startPos=start;
+        this.entityTypes=type;
+    }
 
     public int getEndPos() {
         return endPos;

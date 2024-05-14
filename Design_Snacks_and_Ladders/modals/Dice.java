@@ -1,5 +1,7 @@
 package modals;
 
+import java.util.Random;
+
 public class Dice {
     private int maxNumber;
 
@@ -14,6 +16,10 @@ public class Dice {
     }
 
     public int roll(){
-        return (int)(Math.random()*(maxNumber-1)+1);
+        Random random = new Random();
+
+        // Generate a random number between 1 and x (inclusive)
+        int randomNumber = random.nextInt(maxNumber) + 1;
+        return randomNumber;
     }
 }
